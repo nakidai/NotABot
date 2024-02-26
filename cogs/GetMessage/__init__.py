@@ -15,14 +15,14 @@ class Cog(commands.Cog, name="GetMessageCog"):
         description="Get message"
     )
     @app_commands.describe(
-        message_id="Message ID"
+        message_id="Message ID",
         channel_id="Channel ID (default: current channel)"
     )
     async def hello(
         self,
         interaction: discord.Interaction,
 
-        message_id: int
+        message_id: int,
         channel_id: Optional[int] = None
     ) -> None:
 
