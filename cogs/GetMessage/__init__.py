@@ -22,13 +22,20 @@ class Cog(commands.Cog, name="GetMessageCog"):
         self,
         interaction: discord.Interaction,
 
-        message_id: int,
-        channel_id: Optional[int] = None
+        message_id: str,
+        channel_id: Optional[str] = None
     ) -> None:
+        # Check arguments
+        if not message_id.isdigit() or \
+           channel_id is not None and not channel_id.isdigit():
+            await interaction.response.send_message(
+                "Arguments should be unsigned integers",
+                ephemeral=True
+            )
 
         # Get channel
         if channel_id is None:
-            channel = ineraction.channel
+            channel = interaction.channel
         else:
             try:
                 channel = await self.client.fetch_channel(channel_id)
@@ -47,7 +54,7 @@ class Cog(commands.Cog, name="GetMessageCog"):
 
         # Get message
         try:
-            message = channel
+            message = await channel.fetch_message(message_id)
         except discord.errors.NotFound:
             await interaction.response.send_message(
                 "Invalid message ID",
@@ -79,6 +86,7 @@ class Cog(commands.Cog, name="GetMessageCog"):
                     ephemeral=True
                 )
 
+        # Send response
         try:
             await interaction.response.send_message(
                 f"""
