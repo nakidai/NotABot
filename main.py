@@ -10,7 +10,7 @@ from discord.ext import commands
 
 class Bot(commands.Bot):
     def __init__(self) -> None:
-        self._cogs: Dict[str, str] = {}
+        self._extensions: Dict[str, str] = {}
         with open("configs/main.json") as f:
             self.config = json.load(f)
 
@@ -21,26 +21,26 @@ class Bot(commands.Bot):
             intents=intents
         )
     
-    async def load_cogs(self, cogs: List[str]) -> None:
-        _cogs = __import__("cogs")
-
-        all_cogs = next(os.walk("cogs/"))[1]
-        for cog_name in all_cogs:
-            if cog_name in cogs and cog_name not in self._cogs:
-                cog = importlib.import_module(f"cogs.{cog_name}").Cog(self)
+    async def load_extensions(self, exts: List[str]) -> None:
+        all_exts = next(os.walk("extensions/"))[1]
+        for ext_name in all_exts:
+            if ext_name in exts and ext_name not in self._extensions:
+                cog = importlib.import_module(
+                    f"extensions.{ext_name}"
+                ).Cog(self)
                 await self.add_cog(cog)
-                self._cogs[cog_name] = cog.__cog_name__
+                self._extensions[ext_name] = cog.__cog_name__
 
-    async def unload_cogs(self, cogs: List[str]) -> None:
-        for cog_name in cogs:
-            if cog_name in self._cogs:
-                await self.remove_cog(self._cogs[cog_name])
-                del self._cogs[cog_name]
+    async def unload_extensions(self, exts: List[str]) -> None:
+        for ext_name in exts:
+            if ext_name in self._extensions:
+                await self.remove_cog(self._extensions[ext_name])
+                del self._extensions[ext_name]
 
     async def on_ready(self) -> None:
         # TODO: Use a logger there instead of prints
-        await self.load_cogs(self.config["default_cogs"])
-        cogs_amount = len(self._cogs)
+        await self.load_extensions(self.config["default_extensions"])
+        cogs_amount = len(self._extensions)
         print(f"Loaded {cogs_amount} cog{'s' if cogs_amount > 1 else ''}")
 
         commands = len(await self.tree.sync())
