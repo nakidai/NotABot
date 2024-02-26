@@ -65,6 +65,8 @@ class Cog(commands.Cog, name="GetMessageCog"):
         # Get timestamp
         timestamp = round(message.created_at.timestamp())
 
+        await interaction.response.defer()
+
         # Get content
         content = message.content
         if not content:
@@ -76,27 +78,26 @@ class Cog(commands.Cog, name="GetMessageCog"):
 
         # Get files
         files = []
-        async with interaction.channel.typing():
-            try:
-                for attachment in msg.attachments:
-                    files.append(await attachment.to_file())
-            except discord.HTTPException as exc:
-                await interaction.response.send_message(
-                    "HTTPException for one of the attachments:\n{exc}",
-                    ephemeral=True
-                )
+        try:
+            for attachment in message.attachments:
+                files.append(await attachment.to_file())
+        except discord.HTTPException as exc:
+            await interaction.response.send_message(
+                "HTTPException for one of the attachments:\n{exc}",
+                ephemeral=True
+            )
 
         # Send response
         try:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 f"""
-User {msg.author.name} sent message <t:{timestamp}:D><t:{timestamp}:T>
+User {message.author.name} sent message <t:{timestamp}:D><t:{timestamp}:T>
 {content}""",
                 files=files
             )
         except ValueError:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 f"""One of the files is too big, I'll not send them
-User {msg.author.name} sent message <t:{timestamp}:D><t:{timestamp}:T>
+User {message.author.name} sent message <t:{timestamp}:D><t:{timestamp}:T>
 {content}"""
             )
