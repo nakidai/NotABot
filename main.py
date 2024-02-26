@@ -43,6 +43,10 @@ class Bot(commands.Bot):
         commands = len(await self.tree.sync())
         print(f"Synced {commands} command{'s' if commands > 1 else ''}")
 
+        activity = discord.Game("shooter")
+        status = discord.Status("dnd")
+        await self.change_presence(activity=activity, status=status)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(
