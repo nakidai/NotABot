@@ -49,6 +49,7 @@ class Bot(commands.Bot):
         activity = discord.Game("shooter")
         status = discord.Status("dnd")
         await self.change_presence(activity=activity, status=status)
+        print("Started activity")
 
 
 def main() -> None:
