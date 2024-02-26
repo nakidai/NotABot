@@ -13,9 +13,12 @@ class Bot(commands.Bot):
         self._cogs: Dict[str, str] = {}
         with open("configs/main.json") as f:
             self.config = json.load(f)
+
+        intents = discord.Intents.default()
+        intents.message_content = True
         super(Bot, self).__init__(
             command_prefix="!",
-            intents=discord.Intents.all()
+            intents=intents
         )
     
     async def load_cogs(self, cogs: List[str]) -> None:
