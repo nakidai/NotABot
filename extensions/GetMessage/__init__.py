@@ -91,7 +91,7 @@ class Cog(commands.Cog, name="GetMessageCog"):
         try:
             await interaction.followup.send(
                 f"""
-User {message.author.name} sent message <t:{timestamp}:D><t:{timestamp}:T>
+User {message.author.name} sent [message]({message.jump.url}) <t:{timestamp}:D><t:{timestamp}:T>
 {content}""",
                 files=files
             )
