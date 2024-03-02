@@ -18,7 +18,7 @@ class Cog(commands.Cog, name="GetMessageCog"):
         message_id="Message ID",
         channel_id="Channel ID (default: current channel)"
     )
-    async def hello(
+    async def getmsg(
         self,
         interaction: discord.Interaction,
 
