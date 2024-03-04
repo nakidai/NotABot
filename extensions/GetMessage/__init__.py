@@ -1,6 +1,8 @@
 from typing import Optional
 import re
+from time import time
 
+from asyncj import AsyncJson
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -9,6 +11,7 @@ from discord import app_commands
 class Cog(commands.Cog, name="GetMessageCog"):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
+        self.slowestJson = AsyncJson("configs/slowest.json")
 
     @app_commands.command(
         name="getmsg",
@@ -25,6 +28,8 @@ class Cog(commands.Cog, name="GetMessageCog"):
         message_id: str,
         channel_id: Optional[str] = None
     ) -> None:
+        self.start_time = time()
+        
         # Check arguments
         if not message_id.isdigit() or \
            channel_id is not None and not channel_id.isdigit():
@@ -51,6 +56,8 @@ class Cog(commands.Cog, name="GetMessageCog"):
 
         url: str,
     ) -> None:
+        self.start_time = time()
+        
         if not re.search(
             r"^https:\/\/discord.com\/channels\/(\d+)\/(\d+)\/(\d+)$",
             url
@@ -138,4 +145,15 @@ User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><
                 f"""One of the files is too big, I'll not send them
 User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><t:{timestamp}:T>
 {content}"""
+            )
+
+        self.end_time = time()
+        self.elapsed_time = self.end_time - self.start_time
+        
+        slowestJsonData = await slowestJson.read()
+        if slowestJsonData["getmessage"] > self.elapsed_time:
+            slowestJsonData["getmessage"] = self.elapsed_time
+            await slowestJson.write(slowestJsonData)
+            await interaction.channel.send(
+                f"This command took {self.elapsed_time} seconds to execute, which is the slowest execution!"
             )
