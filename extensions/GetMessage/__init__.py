@@ -150,7 +150,7 @@ User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><
         self.end_time = time()
         self.elapsed_time = self.end_time - self.start_time
         
-        slowest_json_data = await slowest_json.read()
+        slowest_json_data = await self.slowest_json.read()
         if slowest_json_data["getmessage"] > self.elapsed_time:
             slowest_json_data["getmessage"] = self.elapsed_time
             await slowest_json.write(slowest_json_data)
