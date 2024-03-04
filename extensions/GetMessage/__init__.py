@@ -11,7 +11,7 @@ from discord import app_commands
 class Cog(commands.Cog, name="GetMessageCog"):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
-        self.slowestJson = AsyncJson("configs/slowest.json")
+        self.slowest_json = AsyncJson("configs/slowest.json")
 
     @app_commands.command(
         name="getmsg",
@@ -150,10 +150,10 @@ User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><
         self.end_time = time()
         self.elapsed_time = self.end_time - self.start_time
         
-        slowestJsonData = await slowestJson.read()
-        if slowestJsonData["getmessage"] > self.elapsed_time:
-            slowestJsonData["getmessage"] = self.elapsed_time
-            await slowestJson.write(slowestJsonData)
+        slowest_json_data = await slowest_json.read()
+        if slowest_json_data["getmessage"] > self.elapsed_time:
+            slowest_json_data["getmessage"] = self.elapsed_time
+            await slowest_json.write(slowest_json_data)
             await interaction.channel.send(
                 f"This command took {self.elapsed_time} seconds to execute, which is the slowest execution!"
             )
