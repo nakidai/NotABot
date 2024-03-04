@@ -151,9 +151,9 @@ User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><
         self.elapsed_time = self.end_time - self.start_time
         
         slowest_json_data = await self.slowest_json.read()
-        if slowest_json_data["getmessage"] > self.elapsed_time:
+        if self.elapsed_time > slowest_json_data["getmessage"]:
             slowest_json_data["getmessage"] = self.elapsed_time
-            await slowest_json.write(slowest_json_data)
+            await self.slowest_json.write(slowest_json_data)
             await interaction.channel.send(
                 f"This command took {self.elapsed_time} seconds to execute, which is the slowest execution!"
             )
