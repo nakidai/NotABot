@@ -33,24 +33,62 @@ class Cog(commands.Cog, name="GetMessageCog"):
                 ephemeral=True
             )
 
+        _channel_id = \
+            interaction.channel.id if channel_id is None else channel_id
+
+        await self._getmsg_end(interaction, _channel_id, message_id)
+
+    @app_commands.command(
+        name="linkgetmsg",
+        description="Get message by link"
+    )
+    @app_commands.describe(
+        url="Message jump URL",
+    )
+    async def linkgetmsg(
+        self,
+        interaction: discord.Interaction,
+
+        url: str,
+    ) -> None:
+        if not re.search(
+            r"^https:\/\/discord.com\/channels\/(\d+)\/(\d+)\/(\d+)$",
+            url
+        ):
+            await interaction.response.send_message(
+                "Invalid link format",
+                ephemeral=True
+            )
+            return
+
+        url_splitted = url.split('/')
+        channel_id = int(url_splitted[-2])
+        message_id = int(url_splitted[-1])
+
+        await self._getmsg_end(interaction, channel_id, message_id)
+
+    async def _getmsg_end(
+        self,
+        interaction: discord.Interaction,
+
+        channel_id: int,
+        message_id: int
+    ) -> None:
         # Get channel
-        if channel_id is None:
-            channel = interaction.channel
-        else:
-            try:
-                channel = await self.client.fetch_channel(channel_id)
-            except discord.errors.NotFound:
-                await interaction.response.send_message(
-                    "Invalid channel ID",
-                    ephemeral=True
-                )
-                return
-            except discord.errors.Forbidden:
-                await interaction.response.send_message(
-                    "I have no access to this channel",
-                    ephemeral=True
-                )
-                return
+        try:
+            channel = await self.client.fetch_channel(channel_id)
+        except discord.errors.NotFound:
+            await interaction.response.send_message(
+                "Invalid channel ID",
+                ephemeral=True
+            )
+            return
+        except discord.errors.Forbidden:
+            await interaction.response.send_message(
+                "I have no access to this channel",
+                ephemeral=True
+            )
+            return
 
         # Get message
         try:
@@ -61,7 +99,7 @@ class Cog(commands.Cog, name="GetMessageCog"):
                 ephemeral=True
             )
             return
-
+        
         # Get timestamp
         timestamp = round(message.created_at.timestamp())
 
@@ -91,13 +129,13 @@ class Cog(commands.Cog, name="GetMessageCog"):
         try:
             await interaction.followup.send(
                 f"""
-User {message.author.name} sent [message]({message.jump.url}) <t:{timestamp}:D><t:{timestamp}:T>
+User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><t:{timestamp}:T>
 {content}""",
                 files=files
             )
         except ValueError:
             await interaction.followup.send(
                 f"""One of the files is too big, I'll not send them
-User {message.author.name} sent message <t:{timestamp}:D><t:{timestamp}:T>
+User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><t:{timestamp}:T>
 {content}"""
             )
