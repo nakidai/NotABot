@@ -16,5 +16,4 @@ jobs:
       - run: echo "${{ secrets.deploy }}" > "$HOME/.ssh/key"
       - run: chmod 600 "$HOME/.ssh/key"
       # Deploy
-      - run: rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . notabot@nakidai.ru:~/src
-      - run: ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no notabot@nakidai.ru -t "sudo systemctl restart notabot"
+      - run: ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no notabot@nakidai.ru -t "cd src; git pull; sudo systemctl restart notabot"
