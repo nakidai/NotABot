@@ -1,6 +1,7 @@
 from typing import Optional
-import re
 from time import time
+import os
+import re
 
 from asyncj import AsyncJson
 import discord
@@ -11,7 +12,10 @@ from discord import app_commands
 class Cog(commands.Cog, name="GetMessageCog"):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
-        self.slowest_json = AsyncJson("configs/slowest.json")
+        if not os.path.exists("var/slowest.json"):
+            with open("var/slowest.json", 'w') as f:
+                f.write("{}")
+        self.slowest_json = AsyncJson("var/slowest.json")
 
     @app_commands.command(
         name="getmsg",
@@ -151,6 +155,8 @@ User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><
         self.elapsed_time = self.end_time - self.start_time
         
         slowest_json_data = await self.slowest_json.read()
+        if "getmessage" not in slowest_json_data.keys():
+            slowest_json_data["getmessage"] = 0
         if self.elapsed_time > slowest_json_data["getmessage"]:
             slowest_json_data["getmessage"] = self.elapsed_time
             await self.slowest_json.write(slowest_json_data)
