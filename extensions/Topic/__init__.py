@@ -1,4 +1,5 @@
 import json
+import re
 
 import requests
 import discord
@@ -36,7 +37,7 @@ class Cog(commands.Cog, name="TopicCog"):
             )
             return
 
-        response = json.loads(response.url.split('\n')[-1])
+        response = json.loads(response.text.split('\n')[-1])
         response = re.sub(r"<@(\d+)>", r"user(\1)", response)
         response = re.sub(r"<@&(\d+)>", r"role(\1)", response)
         await interaction.followup.send(
