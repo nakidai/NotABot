@@ -1,6 +1,8 @@
+from logging import Logger
 from typing import List
 import importlib
 import argparse
+import logging
 import json
 import os
 
@@ -23,7 +25,7 @@ class Bot(commands.Bot):
             command_prefix="!",
             intents=intents
         )
-    
+
     async def load_extensions(self, exts: List[str]) -> None:
         all_exts = next(os.walk("extensions/"))[1]
         for ext_name in all_exts:
@@ -41,18 +43,19 @@ class Bot(commands.Bot):
                 del self._extensions[ext_name]
 
     async def on_ready(self) -> None:
-        # TODO: Use a logger there instead of prints
+        logger = logging.getLogger('discord')
+
         await self.load_extensions(self.config["default_extensions"])
         cogs_amount = len(self._extensions)
-        print(f"Loaded {cogs_amount} cog{'s' if cogs_amount > 1 else ''}")
+        logger.info(f"Loaded {cogs_amount} cog{'s' if cogs_amount > 1 else ''}")
 
         commands = len(await self.tree.sync())
-        print(f"Synced {commands} command{'s' if commands > 1 else ''}")
+        logger.info(f"Synced {commands} command{'s' if commands > 1 else ''}")
 
         activity = discord.Game("shooter")
         status = discord.Status("dnd")
         await self.change_presence(activity=activity, status=status)
-        print("Started activity")
+        logger.info("Started activity")
 
 
 def main() -> None:
