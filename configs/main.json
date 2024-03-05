@@ -2,7 +2,6 @@
     "default_extensions":
     [
         "Example",
-        "GetMessage",
-        "Topic"
+        "GetMessage"
     ]
 }
