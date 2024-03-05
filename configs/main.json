@@ -3,6 +3,7 @@
     [
         "Test",
         "Example",
-        "GetMessage"
+        "GetMessage",
+        "Topic"
     ]
 }
