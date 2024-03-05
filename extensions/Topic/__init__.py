@@ -38,8 +38,10 @@ class Cog(commands.Cog, name="TopicCog"):
             return
 
         response = json.loads(response.text.split('\n')[-1])
+        response = response.split('\n')[0][4:-1]
+
         response = re.sub(r"<@(\d+)>", r"user(\1)", response)
         response = re.sub(r"<@&(\d+)>", r"role(\1)", response)
         await interaction.followup.send(
-            "Current topic: {response}"
+            f"Current topic: {response}"
         )
