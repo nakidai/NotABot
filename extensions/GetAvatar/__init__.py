@@ -4,6 +4,8 @@ import discord
 from discord.ext import commands
 from discord import app_commands, Embed
 
+from utils import Color
+
 
 class Cog(commands.Cog, name="GetAvatarCog"):
     def __init__(self, client: commands.Bot) -> None:
@@ -34,7 +36,8 @@ class Cog(commands.Cog, name="GetAvatarCog"):
 
         embed: Embed = Embed(
             title=f"Avatar {_user}",
-            url=avatar.url
+            url=avatar.url,
+            color=Color.EMBED_BACKGROUND_DARK
         )
         embed.set_image(url=avatar.url)
         await interaction.response.send_message(
