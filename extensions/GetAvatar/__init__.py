@@ -2,7 +2,7 @@ from typing import Optional
 
 import discord
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, Embed
 
 
 class Cog(commands.Cog, name="GetAvatarCog"):
@@ -32,6 +32,11 @@ class Cog(commands.Cog, name="GetAvatarCog"):
             )
             return
 
+        embed: Embed = Embed(
+            title=f"Avatar {_user}",
+            url=avatar.url
+        )
+        embed.set_image(url=avatar.url)
         await interaction.response.send_message(
-            f"[Avatar]({avatar.url})"
+            embed=embed
         )
