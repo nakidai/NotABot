@@ -140,14 +140,14 @@ class Cog(commands.Cog, name="GetMessageCog"):
         try:
             await interaction.followup.send(
                 f"""
-User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><t:{timestamp}:T>
+User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D> <t:{timestamp}:T>
 {content}""",
                 files=files
             )
         except ValueError:
             await interaction.followup.send(
                 f"""One of the files is too big, I'll not send them
-User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D><t:{timestamp}:T>
+User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D> <t:{timestamp}:T>
 {content}"""
             )
 
