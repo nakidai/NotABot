@@ -44,6 +44,6 @@ class Field:
         out = ""
         for line in self.field:
             for field_cell in line:
-                out += f"||`{field_cell}`||"
+                out += f"||{field_cell}||"
             out += '\n'
         return out[:-1]
