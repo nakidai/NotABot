@@ -3,6 +3,7 @@
     [
         "Example",
         "GetMessage",
-        "GetAvatar"
+        "GetAvatar",
+        "Minesweeper"
     ]
 }
