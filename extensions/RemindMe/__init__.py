@@ -123,9 +123,6 @@ class Cog(commands.Cog, name="RemindMe"):
         # update the database
         self.update_remindme_database()
 
-    # change the time here
-    # more times it checks, the bigger the load (if there are many users), but the better the accuracy
-    # less times it checks, less load, but worse accuracy
     @tasks.loop(seconds=DATABASE_UPDATE_TIME)
     async def check_reminders(self):
         """
