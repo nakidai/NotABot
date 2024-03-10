@@ -5,7 +5,7 @@ The extension to 'NotABot' discord not a bot client, which adds '!remindme' comm
 import os
 import json
 import discord
-from datetime import datetime
+from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 from discord import app_commands
 
@@ -98,12 +98,16 @@ class Cog(commands.Cog, name="RemindMe"):
             if len(self.remindme_database[user_id]) > 30:
                 await interaction.response.send_message("Вы достигли лимита напоминаний в 30")
                 return
+
+        # if not, add a list for them
         else:
             self.remindme_database[user_id] = []
 
         # add a reminder for a user
+        future_time = datetime.now()
+        future_time += timedelta(0, total_seconds)
         self.remindme_database[user_id].append({
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": future_time.strftime("%Y-%m-%d %H:%M:%S"),
             "message": message
         })
 
