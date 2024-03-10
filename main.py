@@ -21,6 +21,7 @@ class Bot(commands.Bot):
 
         intents = discord.Intents.default()
         intents.message_content = True
+        intents.members = True
         super(Bot, self).__init__(
             command_prefix="!",
             intents=intents
