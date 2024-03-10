@@ -75,15 +75,22 @@ class Cog(commands.Cog, name="RemindMe"):
         }
         token = ""
         for char in timestamp:
+            # if character is a digit
             if char.isdigit():
                 token += char
+
+            # if it's a time specifier
             elif char in "YMDhms":
-                try:
-                    decoded_time[char] = int(token)
-                except ValueError:
-                    raise discord.ext.commands.BadArgument
+                decoded_time[char] = int(token)
+
+            # if it's a separator
             elif char == " " and token != "":
                 token = ""
+
+            # if it's garbaje~
+            else:
+                await interaction.response.send_message(f"Unknown character '{char}'", ephemeral=True)
+                return
 
         # calculate the total amount of time in seconds
         total_seconds = decoded_time["Y"] * 31557600
@@ -95,14 +102,14 @@ class Cog(commands.Cog, name="RemindMe"):
 
         # if the total amount of time is bigger than 10 years, give an error and die
         if total_seconds > 31557600:
-            await interaction.response.send_message("I doubt the discord will exist for 10+ years.")
+            await interaction.response.send_message("I doubt the discord will exist for 10+ years.", ephemeral=True)
             return
 
         # check if user is already present
         if (user_id := str(interaction.user.id)) in self.remindme_database:
             # if so, check if the user didn't hit the "remindme" cap
             if len(self.remindme_database[user_id]) > PER_USER_REMINDER_LIMIT:
-                await interaction.response.send_message("You've reached the reminder limit of 30")
+                await interaction.response.send_message("You've reached the reminder limit of 30", ephemeral=True)
                 return
 
         # if not, add a list for them
