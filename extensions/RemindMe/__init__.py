@@ -120,6 +120,8 @@ class Cog(commands.Cog, name="RemindMe"):
         future_time += timedelta(0, total_seconds)
         self.remindme_database[user_id].append({
             "timestamp": future_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "username": interaction.user.name,
+            "channel": interaction.channel.id,
             "message": message
         })
 
@@ -137,9 +139,6 @@ class Cog(commands.Cog, name="RemindMe"):
 
         # go through the database
         for user_id, reminders in self.remindme_database.items():
-            # fetch the user
-            user = self.client.get_user(int(user_id))
-
             # go through the user's reminders
             reminder_idx = 0
             while reminder_idx < len(reminders):
@@ -151,7 +150,9 @@ class Cog(commands.Cog, name="RemindMe"):
 
                 # if the time is negative, that means it has already past that
                 if (timestamp - datetime.now()).total_seconds() <= 0:
-                    message = f"Reminder for <t:{int(timestamp.timestamp())}>\n{reminder['message']}"
+                    message = f"Reminder for <t:{int(timestamp.timestamp())}> for {reminder['username']}\n{reminder['message']}"
+
+
 
                     # check that the message isn't too big
                     if len(message) >= 2000:
@@ -161,9 +162,23 @@ class Cog(commands.Cog, name="RemindMe"):
                     self.remindme_database[user_id].pop(reminder_idx)
                     reminder_idx -= 1
 
-                    # try to send the reminder to the user's dm
+                    # try to fetch channel
                     try:
-                        await user.send(message)
+                        channel = await self.client.fetch_channel(
+                            int(reminder['channel'])
+                        )
+
+                    # if failed for these reasons, just ignore
+                    except discord.HTTPException or discord.Forbidden:
+                        pass
+
+                    # if something else failed, put it in logs
+                    except Exception as e:
+                        print(f"WARN: {e}; in RemindMe cog")
+
+                    # try to send the reminder
+                    try:
+                        await channel.send(message)
 
                     # if failed for these reasons, just ignore
                     except discord.HTTPException or discord.Forbidden:
