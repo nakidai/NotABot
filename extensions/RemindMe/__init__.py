@@ -2,6 +2,7 @@
 The extension to 'NotABot' discord not a bot client, which adds '!remindme' command.
 """
 
+import os
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -14,6 +15,14 @@ class Cog(commands.Cog, name="RemindMe"):
 
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
+
+        # make sure that the 'remind me' text is preserved in a file
+        # if an outage happens, the bot will still save the messages.
+        # To preserve space on the disk, the file will be capped to ~20 MiB
+        self.path_to_cog: str = os.path.abspath(os.path.dirname(__file__))
+        if not os.path.isfile(os.path.join(self.path_to_cog, "database.json")):
+            with open(os.path.join(self.path_to_cog, "database.json"), "w", encoding="utf8") as file:
+                file.write("[\n]")
 
     @app_commands.command(
         name="remindme",
@@ -56,7 +65,7 @@ class Cog(commands.Cog, name="RemindMe"):
             elif char == " " and token != "":
                 token = ""
 
-        # basically, if the entered time is bigger than 100 years
+        # calculate the total amount of time in years
         total_years = decoded_time["Y"]
         total_years += decoded_time["M"] / 12
         total_years += decoded_time["d"] / 365.2422
@@ -64,6 +73,7 @@ class Cog(commands.Cog, name="RemindMe"):
         total_years += decoded_time["m"] / 525960
         total_years += decoded_time["s"] / 31557600
 
+        # if the total amount of time is bigger than 10 years, give an error and die
         if total_years > 10:
             await interaction.response.send_message("Я не думаю что Discord будет существовать через 10 лет.")
             return
