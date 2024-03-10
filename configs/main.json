@@ -4,6 +4,7 @@
         "Example",
         "GetMessage",
         "GetAvatar",
-        "Minesweeper"
+        "Minesweeper",
+        "RemindMe"
     ]
 }
