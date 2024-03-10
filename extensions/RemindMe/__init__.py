@@ -2,12 +2,18 @@
 The extension to 'NotABot' discord not a bot client, which adds '/remindme' command.
 """
 
+
 import os
 import json
 import discord
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 from discord import app_commands
+
+
+# Constants
+DATABASE_UPDATE_TIME: int = 5       # in seconds
+PER_USER_REMINDER_LIMIT: int = 30   # how many reminders can 1 user have
 
 
 class Cog(commands.Cog, name="RemindMe"):
@@ -89,14 +95,14 @@ class Cog(commands.Cog, name="RemindMe"):
 
         # if the total amount of time is bigger than 10 years, give an error and die
         if total_seconds > 31557600:
-            await interaction.response.send_message("Я не думаю что Discord будет существовать через 10+ лет.")
+            await interaction.response.send_message("I doubt the discord will exist for 10+ years.")
             return
 
         # check if user is already present
         if (user_id := str(interaction.user.id)) in self.remindme_database:
             # if so, check if the user didn't hit the "remindme" cap
-            if len(self.remindme_database[user_id]) > 30:
-                await interaction.response.send_message("Вы достигли лимита напоминаний в 30")
+            if len(self.remindme_database[user_id]) > PER_USER_REMINDER_LIMIT:
+                await interaction.response.send_message("You've reached the reminder limit of 30")
                 return
 
         # if not, add a list for them
@@ -120,7 +126,7 @@ class Cog(commands.Cog, name="RemindMe"):
     # change the time here
     # more times it checks, the bigger the load (if there are many users), but the better the accuracy
     # less times it checks, less load, but worse accuracy
-    @tasks.loop(seconds=5)
+    @tasks.loop(seconds=DATABASE_UPDATE_TIME)
     async def check_reminders(self):
         """
         A periodic check of reminders.
@@ -179,10 +185,10 @@ class Cog(commands.Cog, name="RemindMe"):
         database = os.path.join(self.path_to_cog, "database.json")
 
         # check that the database file is in its place still
-        # may not be necessary, so for now it's commented out
-        # if not os.path.isfile(database):
-        #     print("CRITICAL: RemindMe database was removed while the bot was running.")
-        #     print("INFO: RemindMe database will be created from the one currently loaded")
+        # may not be necessary, but it's here anyway
+        if not os.path.isfile(database):
+            print("CRITICAL: RemindMe database was removed while the bot was running.")
+            print("INFO: RemindMe database will be created from the one currently loaded")
 
         # write updates to the database file
         with open(database, "w", encoding="utf8") as file:

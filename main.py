@@ -50,8 +50,8 @@ class Bot(commands.Bot):
         cogs_amount = len(self._extensions)
         logger.info(f"Loaded {cogs_amount} cog{'s' if cogs_amount > 1 else ''}")
 
-        # commands = len(await self.tree.sync())
-        # logger.info(f"Synced {commands} command{'s' if commands > 1 else ''}")
+        commands = len(await self.tree.sync())
+        logger.info(f"Synced {commands} command{'s' if commands > 1 else ''}")
 
         activity = discord.Game("shooter")
         status = discord.Status("dnd")
