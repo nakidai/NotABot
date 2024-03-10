@@ -6,7 +6,7 @@ import os
 import json
 import discord
 from datetime import datetime
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands
 
 
@@ -30,6 +30,9 @@ class Cog(commands.Cog, name="RemindMe"):
         with open(filepath, "r") as file:
             self.remindme_database: dict[str, list[dict[str, str]]] = json.loads(file.read())
 
+        # start checking reminders
+        self.check_reminders.start()
+
     @app_commands.command(
         name="remindme",
         description="Reminds you"
@@ -50,7 +53,7 @@ class Cog(commands.Cog, name="RemindMe"):
         This is the 'remind me' command implementation
         """
 
-        time = timestamp
+        time_ = timestamp
         decoded_time = {
             "Y": 0,     # year
             "M": 0,     # month
@@ -60,7 +63,7 @@ class Cog(commands.Cog, name="RemindMe"):
             # "s": 0      # second (I don't think it's needed?)
         }
         token = ""
-        for char in time:
+        for char in time_:
             if char.isdigit():
                 token += char
             elif char in "YMDhms":
@@ -95,8 +98,56 @@ class Cog(commands.Cog, name="RemindMe"):
 
         # add a reminder for a user
         self.remindme_database[user_id].append({
-            "timestamp": datetime.now().__str__(),
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "message": message
         })
 
         await interaction.response.send_message("Напоминание успешно создано!")
+
+    @tasks.loop(minutes=1)
+    async def check_reminders(self):
+        """
+        A periodic check of reminders.
+        Set to 1 minute
+        """
+
+        # go through the database
+        for user_id, reminders in self.remindme_database.items():
+            # fetch the user
+            user = self.client.get_user(int(user_id))
+
+            # go through the user's reminders
+            reminder_idx = 0
+            while reminder_idx < len(reminders):
+                # fetch the reminder
+                reminder = reminders[reminder_idx]
+
+                # decode the stored timestamp
+                timestamp = datetime.strptime(reminder["timestamp"], "%Y-%m-%d %H:%M:%S")
+
+                # if the time is negative, that means it has already past that
+                if (timestamp - datetime.now()).total_seconds() <= 0:
+                    message = f"Напоминание на <t:{int(timestamp.timestamp())}>\n{reminder['message']}"
+
+                    # check that the message isn't too big
+                    if len(message) >= 2000:
+                        message = message[:1995] + "..."
+
+                    # remove the reminder from the database
+                    self.remindme_database[user_id].pop(reminder_idx)
+                    reminder_idx -= 1
+
+                    # try to send the reminder to the user's dm
+                    try:
+                        await user.send(message)
+
+                    # if failed for these reasons, just ignore
+                    except discord.HTTPException or discord.Forbidden:
+                        pass
+
+                    # if something else failed, put it in logs
+                    except Exception as e:
+                        print(f"WARN: {e}; in RemindMe cog")
+
+                # increment the index
+                reminder_idx += 1
