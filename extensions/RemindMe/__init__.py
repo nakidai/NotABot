@@ -1,5 +1,5 @@
 """
-The extension to 'NotABot' discord not a bot client, which adds '!remindme' command.
+The extension to 'NotABot' discord not a bot client, which adds '/remindme' command.
 """
 
 import os
@@ -85,11 +85,11 @@ class Cog(commands.Cog, name="RemindMe"):
         total_seconds += decoded_time["d"] * 86400
         total_seconds += decoded_time["h"] * 3600
         total_seconds += decoded_time["m"] * 60
-        # total_seconds += decoded_time["s"]  # to lessen the load
+        # total_seconds += decoded_time["s"]
 
         # if the total amount of time is bigger than 10 years, give an error and die
         if total_seconds > 31557600:
-            await interaction.response.send_message("Я не думаю что Discord будет существовать через 10 лет.")
+            await interaction.response.send_message("Я не думаю что Discord будет существовать через 10+ лет.")
             return
 
         # check if user is already present
@@ -117,11 +117,13 @@ class Cog(commands.Cog, name="RemindMe"):
         # update the database
         self.update_remindme_database()
 
-    @tasks.loop(seconds=10)
+    # change the time here
+    # more times it checks, the bigger the load (if there are many users), but the better the accuracy
+    # less times it checks, less load, but worse accuracy
+    @tasks.loop(seconds=5)
     async def check_reminders(self):
         """
         A periodic check of reminders.
-        Set to 10 seconds
         """
 
         # go through the database
