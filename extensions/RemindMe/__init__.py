@@ -108,7 +108,7 @@ class Cog(commands.Cog, name="RemindMe"):
         if (user_id := str(interaction.user.id)) in self.remindme_database:
             # if so, check if the user didn't hit the "remindme" cap
             if len(self.remindme_database[user_id]) > PER_USER_REMINDER_LIMIT:
-                await interaction.response.send_message("You've reached the reminder limit of 30", ephemeral=True)
+                await interaction.response.send_message("You've reached the reminder limit of {PER_USER_REMINDER_LIMIT}", ephemeral=True)
                 return
 
         # if not, add a list for them
@@ -187,7 +187,7 @@ class Cog(commands.Cog, name="RemindMe"):
         # check that the database file is in its place still
         # may not be necessary, but it's here anyway
         if not os.path.isfile(self.db_path):
-            print("CRITICAL: RemindMe database was removed while the bot was running.")
+            print("WARN: RemindMe database was removed while the bot was running.")
             print("INFO: RemindMe database will be created from the one currently loaded")
 
         # write updates to the database file
