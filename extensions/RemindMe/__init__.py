@@ -28,7 +28,13 @@ class Cog(commands.Cog, name="RemindMe"):
 
         # read the database
         with open(filepath, "r") as file:
-            self.remindme_database: dict[str, list[dict[str, str]]] = json.loads(file.read())
+            try:
+                self.remindme_database: dict[str, list[dict[str, str]]] = json.loads(file.read())
+            except json.decoder.JSONDecodeError:
+                print("CRITICAL: RemindMe Unable to load the database, due to an error when decoding it")
+                print("INFO: RemindMe cog is down")
+                self.cog_unload()
+                return
 
         # start checking reminders
         self.check_reminders.start()
@@ -108,11 +114,11 @@ class Cog(commands.Cog, name="RemindMe"):
         # update the database
         self.update_remindme_database()
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(seconds=10)
     async def check_reminders(self):
         """
         A periodic check of reminders.
-        Set to 1 minute
+        Set to 10 seconds
         """
 
         # go through the database
