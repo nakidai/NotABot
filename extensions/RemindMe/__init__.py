@@ -3,7 +3,9 @@ The extension to 'NotABot' discord not a bot client, which adds '!remindme' comm
 """
 
 import os
+import json
 import discord
+from datetime import datetime
 from discord.ext import commands
 from discord import app_commands
 
@@ -16,13 +18,17 @@ class Cog(commands.Cog, name="RemindMe"):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
 
-        # make sure that the 'remind me' text is preserved in a file
+        # make sure that the database file exists
         # if an outage happens, the bot will still save the messages.
-        # To preserve space on the disk, the file will be capped to ~20 MiB
         self.path_to_cog: str = os.path.abspath(os.path.dirname(__file__))
-        if not os.path.isfile(os.path.join(self.path_to_cog, "database.json")):
-            with open(os.path.join(self.path_to_cog, "database.json"), "w", encoding="utf8") as file:
-                file.write("[\n]")
+        filepath = os.path.join(self.path_to_cog, "database.json")
+        if not os.path.isfile(filepath):
+            with open(filepath, "w", encoding="utf8") as file:
+                file.write("{\n}")
+
+        # read the database
+        with open(filepath, "r") as file:
+            self.remindme_database: dict[str, list[dict[str, str]]] = json.loads(file.read())
 
     @app_commands.command(
         name="remindme",
@@ -51,7 +57,7 @@ class Cog(commands.Cog, name="RemindMe"):
             "d": 0,     # day
             "h": 0,     # hour
             "m": 0,     # minute
-            "s": 0      # second (I don't think it's needed?)
+            # "s": 0      # second (I don't think it's needed?)
         }
         token = ""
         for char in time:
@@ -71,11 +77,26 @@ class Cog(commands.Cog, name="RemindMe"):
         total_years += decoded_time["d"] / 365.2422
         total_years += decoded_time["h"] / 8766
         total_years += decoded_time["m"] / 525960
-        total_years += decoded_time["s"] / 31557600
+        # total_years += decoded_time["s"] / 31557600  # to lessen the load
 
         # if the total amount of time is bigger than 10 years, give an error and die
         if total_years > 10:
             await interaction.response.send_message("Я не думаю что Discord будет существовать через 10 лет.")
             return
 
-        await interaction.response.send_message("yes")
+        # check if user is already present
+        if (user_id := str(interaction.user.id)) in self.remindme_database:
+            # if so, check if the user didn't hit the "remindme" cap
+            if len(self.remindme_database[user_id]) > 30:
+                await interaction.response.send_message("Вы достигли лимита напоминаний в 30")
+                return
+        else:
+            self.remindme_database[user_id] = []
+
+        # add a reminder for a user
+        self.remindme_database[user_id].append({
+            "timestamp": datetime.now().__str__(),
+            "message": message
+        })
+
+        await interaction.response.send_message("Напоминание успешно создано!")
