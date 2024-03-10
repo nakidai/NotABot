@@ -125,7 +125,7 @@ class Cog(commands.Cog, name="RemindMe"):
         })
 
         # send the sucks ass message
-        await interaction.response.send_message("Напоминание успешно создано!")
+        await interaction.response.send_message("Reminder succesfully created!")
 
         # update the database
         self.update_remindme_database()
@@ -152,7 +152,7 @@ class Cog(commands.Cog, name="RemindMe"):
 
                 # if the time is negative, that means it has already past that
                 if (timestamp - datetime.now()).total_seconds() <= 0:
-                    message = f"Напоминание на <t:{int(timestamp.timestamp())}>\n{reminder['message']}"
+                    message = f"Reminder for <t:{int(timestamp.timestamp())}>\n{reminder['message']}"
 
                     # check that the message isn't too big
                     if len(message) >= 2000:
