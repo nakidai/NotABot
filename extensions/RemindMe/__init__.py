@@ -3,9 +3,11 @@ The extension to 'NotABot' discord not a bot client, which adds '/remindme' comm
 """
 
 
-import os
-import json
 import discord
+import json
+import os
+import re
+
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 from discord import app_commands
@@ -114,6 +116,10 @@ class Cog(commands.Cog, name="RemindMe"):
         # if not, add a list for them
         else:
             self.remindme_database[user_id] = []
+
+        # filter pings from message
+        message = re.sub(r"<@(\d+)>", r"user(\1)", message)
+        message = re.sub(r"<@&(\d+)>", r"role(\1)", message)
 
         # add a reminder for a user
         future_time = datetime.now()
