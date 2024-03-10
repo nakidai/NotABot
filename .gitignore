@@ -171,6 +171,3 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
-
-# extensions
-/extensions/RemindMe/database.json

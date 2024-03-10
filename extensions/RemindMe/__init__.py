@@ -26,14 +26,13 @@ class Cog(commands.Cog, name="RemindMe"):
 
         # make sure that the database file exists
         # if an outage happens, the bot will still save the messages.
-        self.path_to_cog: str = os.path.abspath(os.path.dirname(__file__))
-        filepath = os.path.join(self.path_to_cog, "database.json")
-        if not os.path.isfile(filepath):
-            with open(filepath, "w", encoding="utf8") as file:
+        self.db_path: str = "var/remindme_db.json"
+        if not os.path.isfile(self.db_path):
+            with open(self.db_path, "w", encoding="utf8") as file:
                 file.write("{\n}")
 
         # read the database
-        with open(filepath, "r") as file:
+        with open(self.db_path, "r") as file:
             try:
                 self.remindme_database: dict[str, list[dict[str, str]]] = json.loads(file.read())
             except json.decoder.JSONDecodeError:
@@ -185,15 +184,12 @@ class Cog(commands.Cog, name="RemindMe"):
         Updates the remindme user database
         """
 
-        # fetch database filepath
-        database = os.path.join(self.path_to_cog, "database.json")
-
         # check that the database file is in its place still
         # may not be necessary, but it's here anyway
-        if not os.path.isfile(database):
+        if not os.path.isfile(self.db_path):
             print("CRITICAL: RemindMe database was removed while the bot was running.")
             print("INFO: RemindMe database will be created from the one currently loaded")
 
         # write updates to the database file
-        with open(database, "w", encoding="utf8") as file:
+        with open(self.db_path, "w", encoding="utf8") as file:
             file.write(json.dumps(self.remindme_database, indent=2))
