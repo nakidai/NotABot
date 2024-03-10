@@ -45,7 +45,7 @@ class Cog(commands.Cog, name="RemindMe"):
     )
     @app_commands.describe(
         timestamp="Time after which the reminder is sent. "
-                  "(Y - Year, M - month, d - day, h - hour, m - minute, s - second)",
+                  "(Y - Year, M - month, d - day, h - hour, m - minute)",
         message="Message that needs to be reminded"
     )
     async def remindme(
@@ -59,7 +59,6 @@ class Cog(commands.Cog, name="RemindMe"):
         This is the 'remind me' command implementation
         """
 
-        time_ = timestamp
         decoded_time = {
             "Y": 0,     # year
             "M": 0,     # month
@@ -69,7 +68,7 @@ class Cog(commands.Cog, name="RemindMe"):
             # "s": 0      # second (I don't think it's needed?)
         }
         token = ""
-        for char in time_:
+        for char in timestamp:
             if char.isdigit():
                 token += char
             elif char in "YMDhms":
@@ -80,16 +79,16 @@ class Cog(commands.Cog, name="RemindMe"):
             elif char == " " and token != "":
                 token = ""
 
-        # calculate the total amount of time in years
-        total_years = decoded_time["Y"]
-        total_years += decoded_time["M"] / 12
-        total_years += decoded_time["d"] / 365.2422
-        total_years += decoded_time["h"] / 8766
-        total_years += decoded_time["m"] / 525960
-        # total_years += decoded_time["s"] / 31557600  # to lessen the load
+        # calculate the total amount of time in seconds
+        total_seconds = decoded_time["Y"] * 31557600
+        total_seconds += decoded_time["M"] * 2628000
+        total_seconds += decoded_time["d"] * 86400
+        total_seconds += decoded_time["h"] * 3600
+        total_seconds += decoded_time["m"] * 60
+        # total_seconds += decoded_time["s"]  # to lessen the load
 
         # if the total amount of time is bigger than 10 years, give an error and die
-        if total_years > 10:
+        if total_seconds > 31557600:
             await interaction.response.send_message("Я не думаю что Discord будет существовать через 10 лет.")
             return
 
