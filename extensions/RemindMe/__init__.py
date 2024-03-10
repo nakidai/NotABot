@@ -102,7 +102,11 @@ class Cog(commands.Cog, name="RemindMe"):
             "message": message
         })
 
+        # send the sucks ass message
         await interaction.response.send_message("Напоминание успешно создано!")
+
+        # update the database
+        self.update_remindme_database()
 
     @tasks.loop(minutes=1)
     async def check_reminders(self):
@@ -151,3 +155,24 @@ class Cog(commands.Cog, name="RemindMe"):
 
                 # increment the index
                 reminder_idx += 1
+
+        # update the database
+        self.update_remindme_database()
+
+    def update_remindme_database(self):
+        """
+        Updates the remindme user database
+        """
+
+        # fetch database filepath
+        database = os.path.join(self.path_to_cog, "database.json")
+
+        # check that the database file is in its place still
+        # may not be necessary, so for now it's commented out
+        # if not os.path.isfile(database):
+        #     print("CRITICAL: RemindMe database was removed while the bot was running.")
+        #     print("INFO: RemindMe database will be created from the one currently loaded")
+
+        # write updates to the database file
+        with open(database, "w", encoding="utf8") as file:
+            file.write(json.dumps(self.remindme_database, indent=2))
