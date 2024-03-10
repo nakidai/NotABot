@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import List
+from typing import List, Dict
 import importlib
 import argparse
 import logging
