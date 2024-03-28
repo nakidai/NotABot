@@ -15,7 +15,7 @@ from discord import app_commands
 
 # Constants
 DATABASE_UPDATE_TIME: int = 5       # in seconds
-PER_USER_REMINDER_LIMIT: int = 30   # how many reminders can 1 user have
+PU_LIMIT: int = 30   # PER_USER_LIMIT, how many reminders can 1 user have at once
 
 
 class Cog(commands.Cog, name="RemindMe"):
@@ -38,8 +38,8 @@ class Cog(commands.Cog, name="RemindMe"):
             try:
                 self.remindme_database: dict[str, list[dict[str, str]]] = json.loads(file.read())
             except json.decoder.JSONDecodeError:
-                print("CRITICAL: RemindMe Unable to load the database, due to an error when decoding it")
-                print("INFO: RemindMe cog is down")
+                print("WARN: RemindMe Unable to load the database, due to an error when decoding it")
+                print("WARN: RemindMe cog is down")
                 self.cog_unload()
                 return
 
@@ -51,66 +51,61 @@ class Cog(commands.Cog, name="RemindMe"):
         description="Reminds you"
     )
     @app_commands.describe(
-        timestamp="Time after which the reminder is sent. "
-                  "(Y - Year, M - month, d - day, h - hour, m - minute)",
-        message="Message that needs to be reminded"
+        message="Message that needs to be reminded",
+        minutes="After how many minutes send a reminder (default is 1 minute)",
+        hours="After how many hours send a reminder",
+        days="After how many days send a reminder",
+        weeks="After how many weeks send a reminder",
+        months="After how many months send a reminder",
+        years="After how many years send a reminder"
     )
     async def remindme(
         self,
         interaction: discord.Interaction,
 
-        timestamp: str,
-        message: str
+        message: str,
+        minutes: int = 1,
+        hours: int = 0,
+        days: int = 0,
+        weeks: int = 0,
+        months: int = 0,
+        years: int = 0
     ) -> None:
         """
         This is the 'remind me' command implementation
         """
 
-        decoded_time = {
-            "Y": 0,     # year
-            "M": 0,     # month
-            "d": 0,     # day
-            "h": 0,     # hour
-            "m": 0,     # minute
-            # "s": 0      # second (I don't think it's needed?)
-        }
-        token = ""
-        for char in timestamp:
-            # if character is a digit
-            if char.isdigit():
-                token += char
+        # timedelta
+        timed = timedelta(
+            minutes=minutes,
+            hours=hours,
+            days=days + (months * 30.436875) + (years * 365.2422),
+            weeks=weeks
+        )
 
-            # if it's a time specifier
-            elif char in "YMDhms":
-                decoded_time[char] = int(token)
-
-            # if it's a separator
-            elif char == " " and token != "":
-                token = ""
-
-            # if it's garbaje~
-            else:
-                await interaction.response.send_message(f"Unknown character '{char}'", ephemeral=True)
-                return
-
-        # calculate the total amount of time in seconds
-        total_seconds = decoded_time["Y"] * 31557600
-        total_seconds += decoded_time["M"] * 2628000
-        total_seconds += decoded_time["d"] * 86400
-        total_seconds += decoded_time["h"] * 3600
-        total_seconds += decoded_time["m"] * 60
-        # total_seconds += decoded_time["s"]
+        # make a pretty error embed
+        error_embed = discord.Embed(title="Error!", description="You've got an error", color=discord.Color.red())
 
         # if the total amount of time is bigger than 10 years, give an error and die
-        if total_seconds > 31557600:
-            await interaction.response.send_message("I doubt the discord will exist for 10+ years.", ephemeral=True)
+        if timed.days > 3652:
+            # add a field to an error embed
+            error_embed.add_field(name="Message", value="I doubt the discord will exist for 10+ years.",
+                                  inline=False)
+
+            # send the error message
+            await interaction.response.send_message(embed=error_embed, ephemeral=True)
             return
 
         # check if user is already present
         if (user_id := str(interaction.user.id)) in self.remindme_database:
             # if so, check if the user didn't hit the "remindme" cap
-            if len(self.remindme_database[user_id]) > PER_USER_REMINDER_LIMIT:
-                await interaction.response.send_message("You've reached the reminder limit of {PER_USER_REMINDER_LIMIT}", ephemeral=True)
+            if len(self.remindme_database[user_id]) > PU_LIMIT:
+                # add a field to an error embed
+                error_embed.add_field(name="Message", value=f"You've reached the reminder limit of {PU_LIMIT}",
+                                      inline=False)
+
+                # send the error message
+                await interaction.response.send_message(embed=error_embed, ephemeral=True)
                 return
 
         # if not, add a list for them
@@ -122,17 +117,20 @@ class Cog(commands.Cog, name="RemindMe"):
         message = re.sub(r"<@&(\d+)>", r"role(\1)", message)
 
         # add a reminder for a user
-        future_time = datetime.now()
-        future_time += timedelta(0, total_seconds)
+        future_time = datetime.now() + timed
         self.remindme_database[user_id].append({
             "timestamp": future_time.strftime("%Y-%m-%d %H:%M:%S"),
-            "username": interaction.user.name,
-            "channel": interaction.channel.id,
             "message": message
         })
 
-        # send the sucks ass message
-        await interaction.response.send_message("Reminder succesfully created!")
+        # make a pretty embed
+        embed = discord.Embed(title="Success!", description="Reminder successfully created!",
+                              color=discord.Color.green())
+        embed.add_field(name="You will receive a message on", value=f"<t:{int(future_time.timestamp())}>",
+                        inline=False)
+
+        # send the success message
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
         # update the database
         self.update_remindme_database()
@@ -156,13 +154,23 @@ class Cog(commands.Cog, name="RemindMe"):
 
                 # if the time is negative, that means it has already past that
                 if (timestamp - datetime.now()).total_seconds() <= 0:
-                    message = f"Reminder for <t:{int(timestamp.timestamp())}> for {reminder['username']}\n{reminder['message']}"
+                    # get user class
+                    username = self.client.get_user(int(user_id))
 
-
+                    # generate a message
+                    message = (f"Reminder for <t:{int(timestamp.timestamp())}> for {username.mention}\n"
+                               f"{reminder['message']}")
 
                     # check that the message isn't too big
                     if len(message) >= 2000:
-                        message = message[:1995] + "..."
+                        message = message[:1990] + "..."
+
+                    # make a pretty embed if possible
+                    if len(message) < 100:
+                        embed = discord.Embed(title="Reminder!", description="Your reminder")
+                        embed.add_field(name="Message", value=reminder['message'], inline=False)
+                    else:
+                        embed = None
 
                     # remove the reminder from the database
                     self.remindme_database[user_id].pop(reminder_idx)
@@ -184,7 +192,10 @@ class Cog(commands.Cog, name="RemindMe"):
 
                     # try to send the reminder
                     try:
-                        await channel.send(message)
+                        if embed is None:
+                            await channel.send(message)
+                        else:
+                            await channel.send(embed=embed)
 
                     # if failed for these reasons, just ignore
                     except discord.HTTPException or discord.Forbidden:
