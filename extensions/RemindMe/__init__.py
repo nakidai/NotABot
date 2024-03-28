@@ -163,7 +163,7 @@ class Cog(commands.Cog, name="RemindMe"):
 
                     # check that the message isn't too big
                     if len(message) >= 2000:
-                        message = message[:1995] + "..."
+                        message = message[:1990] + "..."
 
                     # make a pretty embed if possible
                     if len(message) < 100:
