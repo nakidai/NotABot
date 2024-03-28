@@ -10,6 +10,7 @@ you need several configs.
 """
 
 import json
+import os
 
 import discord
 from discord.ext import commands
@@ -30,11 +31,22 @@ class Cog(commands.Cog, name="ExampleCog"):
         called as client) and also there you can load some configs, set some
         default variables etc.
 
-        In this example it loads welcome message from the config file.
+        Since files in repo are reset after every deploy (at least MY instance
+        is deployed through git), you can't store there any information that bot
+        should remember. So you can put databases or something of this kind in
+        var folder.
+
+        In this example it loads welcome message from the config file, and also
+        creates file for interaction's IDs.
         """
         with open("configs/example.json") as f:
             self.greeting = json.load(f)["greeting"]
         self.client = client
+
+        self.temp_path = "var/example"
+        if not os.path.isfile(self.temp_path):
+            with open(self.temp_path, "w") as f:
+                pass
 
     @app_commands.command(
         name="hello",
@@ -59,9 +71,12 @@ class Cog(commands.Cog, name="ExampleCog"):
         see what does each argument.
 
         In this example it sends message with greetings and name from name
-        arguments or uses "Vectozavr" if argument not provided.
+        arguments or uses "Vectozavr" if argument not provided. Then command
+        appends interaction's ID to its file.
         """
 
         # Protection from pings
         _name = name.replace("@", "%40%")
         await interaction.response.send_message(f"{self.greeting}, {_name}!")
+        with open(self.temp_path, "a") as f:
+            f.write(f"{interaction.id}\n")
