@@ -168,7 +168,7 @@ class Cog(commands.Cog, name="RemindMe"):
                     # make a pretty embed if possible
                     if len(message) < 100:
                         embed = discord.Embed(title="Reminder!", description="Your reminder")
-                        embed.add_field(name="Message", value=reminder['message'])
+                        embed.add_field(name="Message", value=reminder['message'], inline=False)
                     else:
                         embed = None
 
