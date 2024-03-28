@@ -120,6 +120,7 @@ class Cog(commands.Cog, name="RemindMe"):
         future_time = datetime.now() + timed
         self.remindme_database[user_id].append({
             "timestamp": future_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "channel": interaction.channel.id,
             "message": message
         })
 
@@ -155,10 +156,10 @@ class Cog(commands.Cog, name="RemindMe"):
                 # if the time is negative, that means it has already past that
                 if (timestamp - datetime.now()).total_seconds() <= 0:
                     # get user class
-                    username = self.client.get_user(int(user_id))
+                    username = await self.client.fetch_user(int(user_id))
 
                     # generate a message
-                    message = (f"Reminder for <t:{int(timestamp.timestamp())}> for {username.mention}\n"
+                    message = (f"Reminder for <t:{int(timestamp.timestamp())}> for {username.name}\n"
                                f"{reminder['message']}")
 
                     # check that the message isn't too big
@@ -167,7 +168,7 @@ class Cog(commands.Cog, name="RemindMe"):
 
                     # make a pretty embed if possible
                     if len(message) < 100:
-                        embed = discord.Embed(title="Reminder!", description="Your reminder")
+                        embed = discord.Embed(title="Reminder!", description=f"{username.name}'s reminder")
                         embed.add_field(name="Message", value=reminder['message'], inline=False)
                     else:
                         embed = None
