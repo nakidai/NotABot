@@ -14,8 +14,10 @@ from discord import app_commands
 
 
 # Constants
-DATABASE_UPDATE_TIME: int = 5       # in seconds
-PU_LIMIT: int = 30   # PER_USER_LIMIT, how many reminders can 1 user have at once
+with open("configs/remindme.json") as f:
+    config = json.load(f)
+    DATABASE_UPDATE_TIME: int = config["DB_UPDATE_TIME_SECS"]
+    PU_LIMIT: int = config["PER_USER_LIMIT"]
 
 
 class Cog(commands.Cog, name="RemindMe"):
