@@ -1,0 +1,4 @@
+{
+    "DB_UPDATE_TIME_SECS": 5,
+    "PER_USER_LIMIT": 30
+}
