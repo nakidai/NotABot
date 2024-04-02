@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import List, Dict
+from typing import List, Dict, Callable
 import importlib
 import argparse
 import logging
@@ -9,14 +9,19 @@ import os
 import discord
 from discord.ext import commands
 
+from .utils import set_root
+
 
 class Bot(commands.Bot):
-    def __init__(self) -> None:
+    def __init__(self, root: str) -> None:
+        self.root_import = __name__[:__name__.rfind('.')]
+        self.path: Callable[[str], str] = set_root(root)
+
         self._extensions: Dict[str, str] = {}
-        with open("configs/main.json") as f:
+        with open(self.path("configs/main.json")) as f:
             self.config = json.load(f)
 
-        if not os.path.exists("var"):
+        if not os.path.exists(self.path("var")):
             os.mkdir("var", 0o755)
 
         intents = discord.Intents.default()
@@ -27,11 +32,10 @@ class Bot(commands.Bot):
         )
 
     async def load_extensions(self, exts: List[str]) -> None:
-        all_exts = next(os.walk("extensions/"))[1]
-        for ext_name in all_exts:
-            if ext_name in exts and ext_name not in self._extensions:
+        for ext_name in exts:
+            if ext_name not in self._extensions:
                 cog = importlib.import_module(
-                    f"extensions.{ext_name}"
+                    f".extensions.{ext_name}", self.root_import
                 ).Cog(self)
                 await self.add_cog(cog)
                 self._extensions[ext_name] = cog.__cog_name__
@@ -60,18 +64,20 @@ class Bot(commands.Bot):
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="NotABot",
+        prog="notabot",
         description="Discord bot written for Vectozavr's server",
     )
     parser.add_argument(
         'token',
         help="Token of discord bot"
     )
+    parser.add_argument(
+        "-r", "--root",
+        default=os.getcwd(),
+        metavar="ROOT",
+        help="Root of the bot (directory with configs/, var/ etc)"
+    )
 
     args = parser.parse_args()
-    bot = Bot()
+    bot = Bot(args.root)
     bot.run(args.token)
-
-
-if __name__ == "__main__":
-    main()

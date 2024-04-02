@@ -1,7 +1,7 @@
 from typing import List
 from random import randint
 
-from extensions.Minesweeper import cell
+from . import cell
 
 
 class Field:

@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from extensions.Minesweeper.field import Field
+from .field import Field
 
 
 class Cog(commands.Cog, name="MinesweeperCog"):
