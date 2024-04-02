@@ -13,13 +13,6 @@ from discord.ext import commands, tasks
 from discord import app_commands
 
 
-# Constants
-with open("configs/remindme.json") as f:
-    config = json.load(f)
-    DATABASE_UPDATE_TIME: int = config["DB_UPDATE_TIME_SECS"]
-    PU_LIMIT: int = config["PER_USER_LIMIT"]
-
-
 class Cog(commands.Cog, name="RemindMe"):
     """
     This is the 'remind me' command cog
@@ -28,9 +21,15 @@ class Cog(commands.Cog, name="RemindMe"):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
 
+        # read the config
+        with open(self.client.path("configs/remindme.json")) as f:
+            config = json.load(f)
+            self.PU_LIMIT: int = config["PER_USER_LIMIT"]
+            self.DATABASE_UPDATE_TIME: int = config["DB_UPDATE_TIME_SECS"]
+
         # make sure that the database file exists
         # if an outage happens, the bot will still save the messages.
-        self.db_path: str = "var/remindme_db.json"
+        self.db_path: str = self.client.path("var/remindme_db.json")
         if not os.path.isfile(self.db_path):
             with open(self.db_path, "w", encoding="utf8") as file:
                 file.write("{\n}")
@@ -46,6 +45,7 @@ class Cog(commands.Cog, name="RemindMe"):
                 return
 
         # start checking reminders
+        self.check_reminders.change_interval(seconds=self.DATABASE_UPDATE_TIME)
         self.check_reminders.start()
 
     @app_commands.command(
@@ -101,9 +101,9 @@ class Cog(commands.Cog, name="RemindMe"):
         # check if user is already present
         if (user_id := str(interaction.user.id)) in self.remindme_database:
             # if so, check if the user didn't hit the "remindme" cap
-            if len(self.remindme_database[user_id]) > PU_LIMIT:
+            if len(self.remindme_database[user_id]) > self.PU_LIMIT:
                 # add a field to an error embed
-                error_embed.add_field(name="Message", value=f"You've reached the reminder limit of {PU_LIMIT}",
+                error_embed.add_field(name="Message", value=f"You've reached the reminder limit of {self.PU_LIMIT}",
                                       inline=False)
 
                 # send the error message
@@ -138,7 +138,7 @@ class Cog(commands.Cog, name="RemindMe"):
         # update the database
         self.update_remindme_database()
 
-    @tasks.loop(seconds=DATABASE_UPDATE_TIME)
+    @tasks.loop()
     async def check_reminders(self):
         """
         A periodic check of reminders.
