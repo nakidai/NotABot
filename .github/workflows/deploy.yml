@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup SSH
-      - run: |
+        run: |
           install -m 600 -D "/dev/null" "$HOME/.ssh/key"
           echo "${{ secrets.deploy }}" > "$HOME/.ssh/key"
       - name: Clone Project
