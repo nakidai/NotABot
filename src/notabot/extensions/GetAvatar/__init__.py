@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands, Embed
 
-from utils import Color
+from ...utils import Color
 
 
 class Cog(commands.Cog, name="GetAvatarCog"):

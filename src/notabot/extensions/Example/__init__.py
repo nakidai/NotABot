@@ -36,14 +36,17 @@ class Cog(commands.Cog, name="ExampleCog"):
         should remember. So you can put databases or something of this kind in
         var folder.
 
+        Also please wrap any path with client.path since it can be changed
+        through --root flag.
+
         In this example it loads welcome message from the config file, and also
         creates file for interaction's IDs.
         """
-        with open("configs/example.json") as f:
+        with open(client.path("configs/example.json")) as f:
             self.greeting = json.load(f)["greeting"]
         self.client = client
 
-        self.temp_path = "var/example"
+        self.temp_path = self.client.path("var/example")
         if not os.path.isfile(self.temp_path):
             with open(self.temp_path, "w") as f:
                 pass

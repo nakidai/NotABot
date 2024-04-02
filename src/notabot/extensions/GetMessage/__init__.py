@@ -12,10 +12,11 @@ from discord import app_commands
 class Cog(commands.Cog, name="GetMessageCog"):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
-        if not os.path.exists("var/slowest.json"):
-            with open("var/slowest.json", 'w') as f:
+        self.slowest_path = self.client.path("var/slowest.json")
+        if not os.path.exists(self.slowest_path):
+            with open(self.slowest_path, 'w') as f:
                 f.write("{}")
-        self.slowest_json = AsyncJson("var/slowest.json")
+        self.slowest_json = AsyncJson(self.slowest_path)
 
     @app_commands.command(
         name="getmsg",
