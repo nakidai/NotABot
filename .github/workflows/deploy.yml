@@ -12,7 +12,5 @@ jobs:
         run: |
           install -m 600 -D "/dev/null" "$HOME/.ssh/key"
           echo "${{ secrets.deploy }}" > "$HOME/.ssh/key"
-      - name: Clone Project
-        uses: actions/checkout@v4
       - name: Run deploy script
         run: ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no notabot@nakidai.ru -t "cd src && sh ../deploy"
