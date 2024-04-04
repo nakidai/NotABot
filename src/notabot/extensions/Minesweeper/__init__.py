@@ -33,7 +33,3 @@ class Cog(commands.Cog, name="MinesweeperCog"):
         field = Field(size, mines)
         field.generate()
         await interaction.response.send_message(f"Minesweeper\n{field}")
-
-
-async def setup(client: commands.Bot) -> None:
-    await client.add_cog(EXTMinesweeper(client))

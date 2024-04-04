@@ -34,7 +34,7 @@ class Cog(commands.Cog, name="GetMessageCog"):
         channel_id: Optional[str] = None
     ) -> None:
         self.start_time = time()
-        
+
         # Check arguments
         if not message_id.isdigit() or \
            channel_id is not None and not channel_id.isdigit():
@@ -62,7 +62,7 @@ class Cog(commands.Cog, name="GetMessageCog"):
         url: str,
     ) -> None:
         self.start_time = time()
-        
+
         if not re.search(
             r"^https:\/\/discord.com\/channels\/(\d+)\/(\d+)\/(\d+)$",
             url
@@ -111,7 +111,7 @@ class Cog(commands.Cog, name="GetMessageCog"):
                 ephemeral=True
             )
             return
-        
+
         # Get timestamp
         timestamp = round(message.created_at.timestamp())
 
@@ -133,7 +133,7 @@ class Cog(commands.Cog, name="GetMessageCog"):
                 files.append(await attachment.to_file())
         except discord.HTTPException as exc:
             await interaction.response.send_message(
-                "HTTPException for one of the attachments:\n{exc}",
+                f"HTTPException for one of the attachments:\n{exc}",
                 ephemeral=True
             )
 
@@ -154,7 +154,7 @@ User {message.author.name} sent [message]({message.jump_url}) <t:{timestamp}:D> 
 
         self.end_time = time()
         self.elapsed_time = self.end_time - self.start_time
-        
+
         slowest_json_data = await self.slowest_json.read()
         if "getmessage" not in slowest_json_data.keys():
             slowest_json_data["getmessage"] = 0

@@ -1,20 +1,17 @@
 name: Deploy
 on:
-  push:
-    branches: master
+  workflow_run:
+    workflows: Test
+    types: Completed
+    brancher: master
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Setup SSH
         run: |
           install -m 600 -D "/dev/null" "$HOME/.ssh/key"
           echo "${{ secrets.deploy }}" > "$HOME/.ssh/key"
-      - name: Clone Project
-        uses: actions/checkout@v4
-      - name: Test Build
-        run: |
-          python -m pip install build
-          python -m build
-      - name: Build at server
+      - name: Run deploy script
         run: ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no notabot@nakidai.ru -t "cd src && sh ../deploy"
