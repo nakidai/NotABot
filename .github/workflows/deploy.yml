@@ -1,10 +1,12 @@
 name: Deploy
 on:
-  push:
-    branches: master
+  workflow_run:
+    workflows: [Test]
+    types: [Completed]
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Setup SSH
         run: |

@@ -1,4 +1,4 @@
-name: Lint
+name: Test
 on: push
 jobs:
   lint:
@@ -20,6 +20,18 @@ jobs:
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --exit-zero --statistics
-    - name: Build project
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone project
+      uses: actions/checkout@v4
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.12"
+    - name: Install dependencies
       run: |
-        python -m build
+        python -m pip install --upgrade pip
+        pip install build
+    - name: Build project
+      run: python -m build
