@@ -3,7 +3,7 @@ on:
   workflow_run:
     workflows: Test
     types: Completed
-    brancher: master
+    branches: master
 jobs:
   deploy:
     runs-on: ubuntu-latest
