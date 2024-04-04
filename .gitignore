@@ -171,3 +171,7 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
+# Dependencies are already listed in pyproject.toml, if you need it, consider
+# building it yourself
+requirements.txt
