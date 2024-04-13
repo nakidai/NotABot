@@ -13,7 +13,7 @@ class Cog(commands.Cog, name="GetAvatarCog"):
 
     @app_commands.command(
         name="getavatar",
-        description="Get message"
+        description="Get user's avatar"
     )
     @app_commands.describe(
         user="User ID (default: you)",
@@ -22,24 +22,57 @@ class Cog(commands.Cog, name="GetAvatarCog"):
         self,
         interaction: discord.Interaction,
 
-        user: Optional[discord.Member] = None,
+        user: Optional[discord.Member] = None
     ) -> None:
         _user = interaction.user if user is None else user
 
-        avatar = _user.avatar
+        avatar = (await self.client.fetch_user(_user.id)).avatar
         if avatar is None:
             await interaction.response.send_message(
-                "User has no avatar",
+                f"{_user.name} has no avatar",
                 ephemeral=True
             )
             return
 
         embed: Embed = Embed(
-            title=f"Avatar {_user}",
+            title=f"{_user.name}'s avatar",
             url=avatar.url,
             color=Color.EMBED_BACKGROUND_DARK
         )
         embed.set_image(url=avatar.url)
+        await interaction.response.send_message(
+            embed=embed
+        )
+
+    @app_commands.command(
+        name="getbanner",
+        description="Get user's banner"
+    )
+    @app_commands.describe(
+        user="User ID (default: you)"
+    )
+    async def getbanner(
+        self,
+        interaction: discord.Interaction,
+
+        user: Optional[discord.Member] = None
+    ) -> None:
+        _user = interaction.user if user is None else user
+
+        banner = (await self.client.fetch_user(_user.id)).banner
+        if banner is None:
+            await interaction.response.send_message(
+                f"{_user.name} has no banner",
+                ephemeral=True
+            )
+            return
+
+        embed: Embed = Embed(
+            title=f"{_user.name}'s banner",
+            url=banner.url,
+            color=Color.EMBED_BACKGROUND_DARK
+        )
+        embed.set_image(url=banner.url)
         await interaction.response.send_message(
             embed=embed
         )
