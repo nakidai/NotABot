@@ -9,7 +9,9 @@ readme = "README.md"
 version = "v1.6"
 dependencies = [
     "discord.py",
-    "asyncj"
+    "asyncj",
+    "sympy",
+    "pillow"
 ]
 authors = [{name = "Nakidai", email = "plaza521@inbox.ru"}]
 classifiers = [
