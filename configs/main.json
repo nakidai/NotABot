@@ -5,6 +5,7 @@
         "GetMessage",
         "GetAvatar",
         "Minesweeper",
-        "RemindMe"
+        "RemindMe",
+        "LaTeXConverter"
     ]
 }
