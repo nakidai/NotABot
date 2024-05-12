@@ -27,7 +27,7 @@ class Cog(commands.Cog, name="LaTeXConverterCog"):
                 f"$${text}$$",
                 output="png",
                 viewer="file",
-                filename=self.client.path("var/image.png"),
+                filename=self.client.path("var/latex.png"),
                 euler=False,
                 dvioptions=['-D', '400']
             )
@@ -40,14 +40,14 @@ class Cog(commands.Cog, name="LaTeXConverterCog"):
                 ephemeral=True
             )
         else:
-            with Image.open(self.client.path("var/image.png")) as img:
+            with Image.open(self.client.path("var/latex.png")) as img:
                 img_borders = ImageOps.expand(
                     img,
                     border=20,
                     fill='white'
                 )
-                img_borders.save(self.client.path("var/image.png"))
-            with open(self.client.path("var/image.png"), "rb") as f:
+                img_borders.save(self.client.path("var/latex.png"))
+            with open(self.client.path("var/latex.png"), "rb") as f:
                 await interaction.response.send_message(
                     file=discord.File(f)
                 )
