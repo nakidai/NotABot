@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "notabot"
 description = "Discord bot for Vectozavr server"
 readme = "README.md"
-version = "v1.7"
+version = "v1.7.1"
 dependencies = [
     "discord.py",
     "asyncj",
