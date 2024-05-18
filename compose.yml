@@ -1,0 +1,9 @@
+services:
+  notabot:
+    image: notabot
+    secrets:
+      - notabot-token
+
+secrets:
+  notabot-token:
+    external: true
