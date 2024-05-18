@@ -2,9 +2,13 @@ NotABot
 --
 Discord bot for Vectozavr server
 
-Usage
+Usage (as application)
 --
-Download dependencies and start bot with token as first argument
+Install it and start bot with token as first argument
+
+Usage (with docker)
+--
+Notabot needs token in `notabot-token` secret and `notabot-var` volume to store data independent from deploys and restarts. You can download prebuilt image from `nakidai/notabot:latest` or build your own (you need to edit compose.yml with your image name then). You can't use docker compose as `compose.yml` uses external secrets, so you can deploy with stack: `docker stack deploy -c compose.yml notabot`.
 
 Contributing (writing own extension)
 --
