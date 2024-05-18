@@ -13,6 +13,8 @@ jobs:
         with:
           username: nakidai
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Clone project
+        uses: actions/checkout@v4
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
