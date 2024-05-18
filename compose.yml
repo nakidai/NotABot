@@ -3,7 +3,13 @@ services:
     image: notabot
     secrets:
       - notabot-token
+    volumes:
+      - notabot-var:/app/var
 
 secrets:
   notabot-token:
+    external: true
+
+volumes:
+  notabot-var:
     external: true
