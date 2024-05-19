@@ -1,12 +1,9 @@
-FROM archlinux:base
+FROM python:3.12-slim
 WORKDIR /app
-RUN pacman --noconfirm -Syu \
-    && pacman --noconfirm -S texlive-basic texlive-latex texlive-latexextra python python-pip \
-    && rm -rf /var/cache/pacman/
 COPY . .
-RUN python -m venv venv \
-    && source venv/bin/activate \
-    && pip install . \
-    && pip cache purge
-CMD source venv/bin/activate \
-    && notabot $(cat /run/secrets/notabot-token)
+RUN apt-get update \
+    && apt-get install -y  --no-install-recommends dvipng texlive-latex-base texlive-latex-extra \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --break-system-packages --no-cache-dir .
+CMD notabot $(cat /run/secrets/notabot-token)
