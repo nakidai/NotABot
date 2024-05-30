@@ -1,6 +1,6 @@
 services:
   notabot:
-    image: nakidai/notabot:latest
+    image: notabot:latest
     secrets:
       - notabot-token
     volumes:
