@@ -6,6 +6,7 @@
         "GetAvatar",
         "Minesweeper",
         "RemindMe",
-        "LaTeXConverter"
+        "LaTeXConverter",
+        "SpeechToText"
     ]
 }

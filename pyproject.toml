@@ -11,7 +11,9 @@ dependencies = [
     "discord.py",
     "asyncj",
     "sympy",
-    "pillow"
+    "pillow",
+    "pydub",
+    "SpeechRecognition"
 ]
 authors = [{name = "Nakidai", email = "plaza521@inbox.ru"}]
 classifiers = [
