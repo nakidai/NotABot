@@ -3,7 +3,6 @@ import speech_recognition as sr
 from discord.ext import commands
 from pydub import AudioSegment
 
-import os.path as p
 
 class Cog(commands.Cog, name="SpeechToTextCog"):
     def __init__(self, client: commands.Bot) -> None:
@@ -14,7 +13,6 @@ class Cog(commands.Cog, name="SpeechToTextCog"):
         self,
         message: discord.Message
     ) -> None:
-        print(p.dirname(sr.__file__))
         if message.attachments and (att := message.attachments[0]).is_voice_message():
             ogg_path = self.client.path(f"var/{att.filename}")
             wav_path = self.client.path(f"var/{att.filename}".replace(".ogg", ".wav"))
@@ -27,7 +25,7 @@ class Cog(commands.Cog, name="SpeechToTextCog"):
                 voice = recognizer.record(wav)
 
             try:
-                await message.reply(recognizer.recognize_sphinx(voice, language="ru-RU"))
+                await message.reply(recognizer.recognize_google(voice))
             except sr.UnknownValueError:
                 await message.reply("Good!")
             except Exception as exc:

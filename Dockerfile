@@ -2,7 +2,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y  --no-install-recommends dvipng texlive-latex-base texlive-latex-extra \
+    && apt-get install -y  --no-install-recommends dvipng texlive-latex-base texlive-latex-extra ffmpeg \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
