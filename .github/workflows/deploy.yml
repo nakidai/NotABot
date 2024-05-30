@@ -15,11 +15,9 @@ jobs:
       - name: Clone project
         uses: actions/checkout@v4
       - name: Build
-        run: docker buildx build -t notabot .
-      - name: Export
-        run: docker save notabot | xz > notabot.txz
+        run: docker buildx build -t notabot --output type=tar . | xz > notabot.txz
       - name: Push
-        run: scp -i "$HOME/.ssh/key" notabot.txz notabot@nakidai.ru:notabot.txz
+        run: scp -i "$HOME/.ssh/key" -o StrictHostKeyChecking=no notabot.txz "notabot@nakidai.ru:~/notabot.txz"
       - name: Post Export
         run: rm notabot.txz
       - name: Post Setup SSH
