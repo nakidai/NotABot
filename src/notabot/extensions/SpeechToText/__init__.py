@@ -25,7 +25,8 @@ class Cog(commands.Cog, name="SpeechToTextCog"):
                 voice = recognizer.record(wav)
 
             try:
-                await message.reply(recognizer.recognize_google(voice))
+                # TODO: move language to config/
+                await message.reply(recognizer.recognize_google(voice, language="ru-RU"))
             except sr.UnknownValueError:
                 await message.reply("Good!")
             except Exception as exc:
