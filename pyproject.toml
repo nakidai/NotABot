@@ -13,7 +13,8 @@ dependencies = [
     "sympy",
     "pillow",
     "pydub",
-    "SpeechRecognition"
+    "SpeechRecognition",
+    "requests"
 ]
 authors = [{name = "Nakidai", email = "plaza521@inbox.ru"}]
 classifiers = [
