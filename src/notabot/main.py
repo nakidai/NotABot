@@ -21,7 +21,7 @@ class Bot(commands.Bot):
             self.config = json.load(f)
 
         if not os.path.exists(self.path("var")):
-            os.mkdir("var", 0o755)
+            os.mkdir(self.path("var"), 0o755)
 
         intents = discord.Intents.default()
         intents.message_content = True
