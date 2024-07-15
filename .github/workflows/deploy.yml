@@ -3,14 +3,31 @@ on:
   push:
     branches: master
 jobs:
+  deploy-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: nakidai
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Clone project
+        uses: actions/checkout@v4
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: nakidai/notabot:latest
   deploy:
     runs-on: ubuntu-latest
+    needs: deploy-docker
     steps:
       - name: Setup SSH
         run: |
           install -m 600 -D "/dev/null" "$HOME/.ssh/key"
           echo "${{ secrets.deploy }}" > "$HOME/.ssh/key"
       - name: Run deploy script
-        run: ssh -i "$HOME/.ssh/key" -o StrictHostKeyChecking=no notabot@nakidai.ru -t "sh deploy"
-      - name: Post Setup SSH
-        run: rm "$HOME/.ssh/key"
+        run: ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no notabot@nakidai.ru -t "cd src && sh ../deploy"
