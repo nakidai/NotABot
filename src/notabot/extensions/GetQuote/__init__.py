@@ -45,7 +45,6 @@ class Cog(commands.Cog, name="GetQuoteCog"):
                 f"{text}\n-# {author} - {category}",
                 ephemeral=False
             )
-        return
     
     @app_commands.command(
         name="setqapikey",
@@ -64,4 +63,3 @@ class Cog(commands.Cog, name="GetQuoteCog"):
                 "Key applied",
                 ephemeral=True
             )
-        return
